@@ -1,5 +1,5 @@
 # algorithms
-C++ and Python implementation of some basic algorithms and data structures. For educational purposes.
+C++ and Python implementations of some basic algorithms and data structures. For educational purposes.
 
 List of algorithms in C++:
 
@@ -7,3 +7,4 @@ List of algorithms in C++:
 2) Calculation of the number of inversions.
 3) Quicksort. Recursive, in place, median of three pivot element selection strategy.
 4) Karger's algorithm. Randomized algorithm to compute minimum cut of a connected graph.
+5) Kosaraju's algorithm - Strongly Connected Components (SCC).
