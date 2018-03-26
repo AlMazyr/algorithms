@@ -1,5 +1,4 @@
 #include <iostream>
-#include <bitset>
 
 using namespace std;
 
@@ -24,7 +23,7 @@ void read_bitstring(istream &in, int &value, int n)
 	}
 }
 
-int main(int argc, char *argv[])
+int main()
 {
 	int n, m, start = 0, finish = 0, res = -1;
 	bool found = false;
@@ -41,18 +40,18 @@ int main(int argc, char *argv[])
 		read_bitstring(cin, switches[i], n);
 	}
 
-	queue[head++] = start;
+	queue[tail++] = start;
 	visited[start] = 1;
 
 	while (head != tail) {
-		int current = queue[tail++];
+		int current = queue[head++];
 
 		for (int i = 0; i < M_MAX; ++i) {
 			int adj = current ^ switches[i];
 			if (!visited[adj]) {
 				dist[adj] = dist[current] + 1;
 				visited[adj] = 1;
-				queue[head++] = adj;
+				queue[tail++] = adj;
 			}
 			if (adj == finish) {
 				found = true;

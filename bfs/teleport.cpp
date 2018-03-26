@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
 
 	cin >> N >> S >> F;
 	if (S == F) {
+		cout << 0 << endl;
 		return 0;
 	}
 
@@ -27,16 +28,16 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	queue[head++] = S-1;
+	queue[tail++] = S-1;
 	visited[S-1] = 1;
 
 	while (head != tail) {
-		current = queue[tail++];
+		current = queue[head++];
 
 		for (i = 0; i < N; ++i) {
 			if (cities[current][i] && !visited[i]) {
 				dist[i] = dist[current] + 1;
-				queue[head++] = i;
+				queue[tail++] = i;
 				visited[i] = 1;
 				if (i == (F-1)) {
 					found = true;
