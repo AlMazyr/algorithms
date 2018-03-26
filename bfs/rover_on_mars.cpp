@@ -16,7 +16,7 @@ struct Cell {
 
 char get_char(const Point &p)
 {
-	char res = 'f';
+	char res;
 	if (p.x == 0 && p.y == 1) {
 		res = 'r';
 	} else if (p.x == 0 && p.y == -1) {
@@ -29,7 +29,7 @@ char get_char(const Point &p)
 	return res;
 }
 
-int main(int argc, char *argv[])
+int main()
 {
 	int n, m;
 	Cell **field;
@@ -69,26 +69,18 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	queue[head++] = R;
+	queue[tail++] = R;
 	while (head != tail) {
-		Point current = queue[tail++];
-
+		Point cur = queue[head++];
 		for (int i = 0; i < MOVES_NUMBER; ++i) {
 			Point adj;
-			adj.x = current.x + moves[i].x;
-			adj.y = current.y + moves[i].y;
+			adj.x = cur.x + moves[i].x;
+			adj.y = cur.y + moves[i].y;
 			if (field[adj.x][adj.y].dist == -1) {
-				queue[head++] = adj;
-				field[adj.x][adj.y].dist = field[current.x][current.x].dist + 1;
+				queue[tail++] = adj;
+				field[adj.x][adj.y].dist = field[cur.x][cur.y].dist + 1;
 				field[adj.x][adj.y].prev = moves[i];
 			}
-			/*
-			if (adj.x == S.x && adj.y == S.y) {
-				found = true;
-				res = field[adj.x][adj.y].dist;
-				break;
-			}
-			*/
 		}
 	}
 
@@ -99,27 +91,14 @@ int main(int argc, char *argv[])
 		path = new char[dist+1];
 		path[dist] = 0;
 		for (int i = dist-1; i >= 0; --i) {
-			path[i] = get_char(field[next.x][next.y].prev);
-			next.x += field[next.x][next.y].prev.x * (-1);
-			next.y += field[next.x][next.y].prev.y * (-1);
+			Point &prev = field[next.x][next.y].prev;
+			path[i] = get_char(prev);
+			next.x += prev.x * (-1);
+			next.y += prev.y * (-1);
 		}
-		cout << (const char*)path << endl;
+		cout << path << endl;
 		delete[] path;
 	}
-
-
-	// debug
-/*
-	cout << n << " " << m << endl;
-	for (int i = 0; i < n+2; ++i) {
-		for (int j = 0; j < m+2; ++j) {
-			cout << field[i][j] << " ";
-		}
-		cout << endl;
-	}
-	cout << "R.x=" << R.x << " R.y=" << R.y << endl;
-	cout << "S.x=" << S.x << " S.y=" << S.y << endl;
-*/
 
 	for (int i = 0; i < n+2; ++i) {
 		delete[] field[i];
