@@ -1,6 +1,4 @@
 #include <iostream>
-#include <iomanip>
-#include <bitset>
 
 using namespace std;
 
@@ -8,11 +6,6 @@ using namespace std;
 #define N_MAX 15
 #define M_MAX 15
 #define PYTHON_LEN_MAX 9
-
-#define MOVE_UP		0b00
-#define MOVE_DOWN	0b01
-#define MOVE_RIGHT	0b10
-#define MOVE_LEFT	0b11
 
 struct Point {
 	int x;
@@ -28,32 +21,6 @@ int field[N_MAX + 2][M_MAX + 2];
 Python queue[N_MAX * M_MAX];
 int head, tail;
 Point moves[MOVES_NUMBER] = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
-
-void print_field(int field[][M_MAX + 2], int n, int m)
-{
-	for (int i = 1; i < n+1; ++i) {
-		for (int j = 1; j < m+1; ++j) {
-			cout << setw(3) << field[i][j] << " ";
-		}
-		cout << endl;
-	}
-}
-
-void print_python_unpacked(Point *p, int len)
-{
-	cout << '{';
-	for (int i = 0; i < len; ++i) {
-		cout << '(' << p[i].x << ", " << p[i].y << ')';
-	}
-	cout << '}' << endl;
-}
-
-void print_python_packed(const Python &pp, int p_len)
-{
-	std::bitset<16> x(pp.tail);
-	cout << "{(" << pp.head.x << ',' << pp.head.y << ')'
-		<< "<-(" << x << ')' << endl;
-}
 
 int get_move_bit(Point &mv)
 {
@@ -78,7 +45,6 @@ void python_pack(Point *p, int p_len, Python &p_packed)
 	}
 }
 
-
 void python_unpack(Point *p, int p_len, const Python &p_packed)
 {
 	p[0] = p_packed.head;
@@ -90,15 +56,17 @@ void python_unpack(Point *p, int p_len, const Python &p_packed)
 	}
 }
 
-bool tail_crash(Point &head, Python &p, int p_len)
+bool tail_crash(const Point &head, Point *p, int p_len)
 {
-	Point p_unpacked[PYTHON_LEN_MAX];
 	bool res = false;
+	int k = 1;
 
-	python_unpack(p_unpacked, p_len, p);
+	if (p_len == 2) {
+		k = 0;
+	}
 
-	for (int i = 1; i < p_len-1; ++i) {
-		if (head.x == p_unpacked[i].x && head.y == p_unpacked[i].y) {
+	for (int i = 1; i < p_len-k; ++i) {
+		if (head.x == p[i].x && head.y == p[i].y) {
 			res = true;
 			break;
 		}
@@ -149,29 +117,17 @@ int main()
 	}
 
 	python_pack(python, p_len, p_start);
-	// debug print
-/*
-	cout << n << ' ' << m << endl;
-	print_field(field, n, m);
-	cout << "C = (" << C.x << ", " << C.y << ")" << endl;
-	cout << "Python original:" << endl;
-	print_python_unpacked(python, p_len);
-	cout << "Python packed:" << endl;
-	print_python_packed(p_start, p_len);
-	cout << "Python unpacked:" << endl;
-	python_unpack(python, p_len, p_start);
-	print_python_unpacked(python, p_len);
-*/
 	queue[tail++] = p_start;
 	while (head != tail) {
 		Python p_c = queue[head++];
+		python_unpack(python, p_len, p_c);
 		for (int i = 0; i < MOVES_NUMBER; ++i) {
 			Python p_n;
 			Point &h_n = p_n.head; // head next
 			Point &h_c = p_c.head; // head current
 			h_n.x = h_c.x + moves[i].x;
 			h_n.y = h_c.y + moves[i].y;
-			if (field[h_n.x][h_n.y] == -1 && !tail_crash(h_n, p_c, p_len)) {
+			if (field[h_n.x][h_n.y] == -1 && !tail_crash(h_n, python, p_len)) {
 				short &t_n = p_n.tail; // tail next
 				t_n = p_c.tail >> 2;
 				Point move_op;
@@ -180,14 +136,6 @@ int main()
 				t_n |= get_move_bit(move_op) << ((p_len-2) * 2);
 				queue[tail++] = p_n;
 				field[h_n.x][h_n.y] = field[h_c.x][h_c.y] + 1;
-				/*
-				cout << "Next move:" << endl;
-				print_field(field, n, m);
-				python_unpack(python, p_len, p_n);
-				print_python_unpacked(python, p_len);
-				print_python_packed(p_n, p_len);
-				cout << endl;
-				*/
 			}
 		}
 	}
