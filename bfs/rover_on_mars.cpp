@@ -3,6 +3,8 @@
 using namespace std;
 
 #define MOVES_NUMBER 4
+#define N_MAX 1000
+#define M_MAX 1000
 
 struct Point {
 	int x;
@@ -11,40 +13,24 @@ struct Point {
 
 struct Cell {
 	int dist;
-	Point prev;
+	int prev;
 };
 
-char get_char(const Point &p)
-{
-	char res;
-	if (p.x == 0 && p.y == 1) {
-		res = 'r';
-	} else if (p.x == 0 && p.y == -1) {
-		res = 'l';
-	} else if (p.x == 1 && p.y == 0) {
-		res = 'd';
-	} else { // {-1,0}
-		res = 'u';
-	}
-	return res;
-}
+Point queue[N_MAX * M_MAX];
+int head, tail;
+
+Cell field[N_MAX + 2][M_MAX + 2];
+Point moves[MOVES_NUMBER] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+char moves_c[] = "rldu";
+char path[N_MAX * M_MAX];
 
 int main()
 {
 	int n, m;
-	Cell **field;
-	char symb, *path;
-	Point R, S, *queue;
-	int head = 0, tail = 0;
-	Point moves[MOVES_NUMBER] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+	char symb;
+	Point R, S;
 
 	cin >> n >> m;
-
-	queue = new Point[n*m];
-	field = new Cell*[n+2];
-	for (int i = 0; i < n+2; ++i) {
-		field[i] = new Cell[m+2];
-	}
 
 	for (int i = 0; i < n+2; ++i) {
 		for (int j = 0; j < m+2; ++j) {
@@ -79,7 +65,7 @@ int main()
 			if (field[adj.x][adj.y].dist == -1) {
 				queue[tail++] = adj;
 				field[adj.x][adj.y].dist = field[cur.x][cur.y].dist + 1;
-				field[adj.x][adj.y].prev = moves[i];
+				field[adj.x][adj.y].prev = i;
 			}
 		}
 	}
@@ -88,23 +74,14 @@ int main()
 	cout << dist << endl;
 	Point next = S;
 	if (dist != -1) {
-		path = new char[dist+1];
-		path[dist] = 0;
 		for (int i = dist-1; i >= 0; --i) {
-			Point &prev = field[next.x][next.y].prev;
-			path[i] = get_char(prev);
-			next.x += prev.x * (-1);
-			next.y += prev.y * (-1);
+			int &prev = field[next.x][next.y].prev;
+			path[i] = moves_c[prev];
+			next.x -= moves[prev].x;
+			next.y -= moves[prev].y;
 		}
 		cout << path << endl;
-		delete[] path;
 	}
-
-	for (int i = 0; i < n+2; ++i) {
-		delete[] field[i];
-	}
-	delete[] field;
-	delete[] queue;
 
 	return 0;
 }
