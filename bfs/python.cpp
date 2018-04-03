@@ -14,7 +14,7 @@ struct Point {
 
 struct Python {
 	Point head;
-	short tail;
+	unsigned short tail;
 };
 
 int field[N_MAX + 2][M_MAX + 2];
@@ -48,7 +48,7 @@ void python_pack(Point *p, int p_len, Python &p_packed)
 void python_unpack(Point *p, int p_len, const Python &p_packed)
 {
 	p[0] = p_packed.head;
-	short tail = p_packed.tail;
+	unsigned short tail = p_packed.tail;
 	for (int i = 1; i < p_len; ++i) {
 		Point move = moves[(tail >> ((p_len-1 - i) * 2)) & 0b11];
 		p[i].x = p[i-1].x + move.x;
@@ -128,7 +128,7 @@ int main()
 			h_n.x = h_c.x + moves[i].x;
 			h_n.y = h_c.y + moves[i].y;
 			if (field[h_n.x][h_n.y] == -1 && !tail_crash(h_n, python, p_len)) {
-				short &t_n = p_n.tail; // tail next
+				unsigned short &t_n = p_n.tail; // tail next
 				t_n = p_c.tail >> 2;
 				Point move_op;
 				move_op.x = moves[i].x * (-1);
