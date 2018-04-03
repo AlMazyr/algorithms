@@ -8,8 +8,8 @@ using namespace std;
 #define PYTHON_LEN_MAX 9
 
 struct Point {
-	int x;
-	int y;
+	short x;
+	short y;
 };
 
 struct Python {
@@ -18,7 +18,9 @@ struct Python {
 };
 
 int field[N_MAX + 2][M_MAX + 2];
-Python queue[N_MAX * M_MAX];
+Python queue[N_MAX * M_MAX * 65536];
+bool visited[N_MAX][M_MAX][65536];
+int dist[N_MAX][M_MAX][65536];
 int head, tail;
 Point moves[MOVES_NUMBER] = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
 
@@ -92,41 +94,40 @@ int main()
 			}
 
 			cin >> ch;
-			if (ch == '.') {
-				field[i][j] = -1;
-			} else if (ch == '*') {
+			if (ch == '*') {
 				field[i][j] = -2;
-			} else if (ch >= '1' && ch <= '9') {
-				int pos = ch - '0';
-				python[pos-1].x = i;
-				python[pos-1].y = j;
-				if (pos > p_len) {
-					p_len = pos;
-				}
-				if (pos == 1) {
-					field[i][j] = 0;
-				} else {
-					field[i][j] = -1;
-				}
-			} else { // ch == C
+			} else {
 				field[i][j] = -1;
-				C.x = i;
-				C.y = j;
+				if (ch >= '1' && ch <= '9') {
+					int pos = ch - '0';
+					python[pos-1].x = i;
+					python[pos-1].y = j;
+					if (pos > p_len) {
+						p_len = pos;
+					}
+				} else if (ch == 'C') {
+					C.x = i;
+					C.y = j;
+				}
 			}
 		}
 	}
 
 	python_pack(python, p_len, p_start);
 	queue[tail++] = p_start;
+	visited[p_start.head.x-1][p_start.head.y-1][p_start.tail] = true;
+
 	while (head != tail) {
 		Python p_c = queue[head++];
 		python_unpack(python, p_len, p_c);
+
 		for (int i = 0; i < MOVES_NUMBER; ++i) {
 			Python p_n;
 			Point &h_n = p_n.head; // head next
 			Point &h_c = p_c.head; // head current
 			h_n.x = h_c.x + moves[i].x;
 			h_n.y = h_c.y + moves[i].y;
+			// TODO
 			if (field[h_n.x][h_n.y] == -1 && !tail_crash(h_n, python, p_len)) {
 				unsigned short &t_n = p_n.tail; // tail next
 				t_n = p_c.tail >> 2;
