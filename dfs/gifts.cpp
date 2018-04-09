@@ -4,23 +4,32 @@
 
 using namespace std;
 
-int stack[V_MAX];
+int stack_flags[V_MAX];
 int top;
 int N, K;
+int is_symmetry;
 
 void dfs(int start)
 {
 	if (top == K) {
-		for (int i = 0; i < top; ++i) {
-			cout << stack[i] << " ";
+		for (int i = 0; i < N; ++i) {
+			if (stack_flags[i]) {
+				if (!is_symmetry)
+					cout << i+1 << " ";
+			} else {
+				if (is_symmetry)
+					cout << i+1 << " ";
+			}
 		}
 		cout << endl;
 		return;
 	}
 
 	for (int i = start+1; i <= N; ++i) {
-		stack[top++] = i;
+		stack_flags[i-1] = 1;
+		top++;
 		dfs(i);
+		stack_flags[i-1] = 0;
 		top--;
 	}
 }
@@ -34,7 +43,10 @@ int main()
 		cout << 0 << endl;
 		return 0;
 	}
-	K = ((N - K) < K) ? (N - K) : K;
+	if ((N - K) < K) {
+		K = N - K;
+		is_symmetry = 1;
+	}
 	for (int i = 1; i <= K; ++i) {
 		res *= (N - i + 1) / (double)i;
 	}
