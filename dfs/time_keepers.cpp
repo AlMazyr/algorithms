@@ -11,45 +11,44 @@ using namespace std;
 
 int *adj_list[N_MAX];
 int visited[N_MAX];
-int stack[N_MAX], top;
+int stack_cycle[N_MAX], top, stop_cycle;
 
 int get_unvisited(int n)
 {
-	int res = -1;
+	int res = 0;
 	for (int i = 0; i < n; ++i) {
 		if (visited[i] == UNVISITED) {
-			res = i;
+			res = i+1;
 			break;
 		}
 	}
 	return res;
 }
 
-void dfs(int start)
+int dfs(int start)
 {
-	visited[start] = IN;
-	for (int i = 1; i < adj_list[start][0]+1; ++i) {
-		if (visited[adj_list[start][i]-1]  == OUT) {
+	int res;
+	visited[start-1] = IN;
+	int &adj_sz = adj_list[start-1][0];
+	for (int i = 1; i < adj_sz+1; ++i) {
+		int &adj_v = adj_list[start-1][i];
+		if (visited[adj_v-1]  == OUT) {
 			continue;
-		} else if (visited[adj_list[start][i]-1] == IN) {
-			// we found a cycle! 
-			cout << "Cycle!" << endl;
-			int stack_idx = top-1;
-			while (stack[stack_idx] != adj_list[start][i]) {
-				stack_idx--;
-			}
-			cout << top - stack_idx << endl;
-			while (stack_idx != top) {
-				cout << stack[stack_idx++] << " ";
-			}
-			cout << endl;
-			continue;
+		} else if (visited[adj_v-1] == IN) {
+			stack_cycle[top++] = adj_v;
+			stack_cycle[top++] = start;
+			return adj_v;
 		}
-		stack[top++] = adj_list[start][i];
-		dfs(adj_list[start][i]-1);
-		top--;
+		if ((res = dfs(adj_v)) != 0) {
+			if (res == start)
+				stop_cycle = 1;
+			if (!stop_cycle)
+				stack_cycle[top++] = start;
+			return res;
+		}
 	}
-	visited[start] = OUT;
+	visited[start-1] = OUT;
+	return 0;
 }
 
 int main()
@@ -57,7 +56,6 @@ int main()
 	int N, M;
 
 	cin >> N >> M;
-	cout << N << " " << M << endl;
 
 	for (int i = 0; i < N; ++i) {
 		int edges_num;
@@ -69,19 +67,18 @@ int main()
 		}
 	}
 
-	// debug: print adj list
-	for (int i = 0; i < N; ++i) {
-		for (int j = 0; j < adj_list[i][0]+1; ++j) {
-			cout << adj_list[i][j] << " ";
-		}
-		cout << endl;
+	int start, res;
+	while ((start = get_unvisited(N)) != 0) {
+		if ((res = dfs(start)) != 0)
+			break;
 	}
-
-	int start;
-	while ((start = get_unvisited(N)) != -1) {
-		stack[top++] = start+1;
-		dfs(start);
-		top--;
+	if (res) {
+		cout << top << endl;
+		for (int i = top-1; i >= 0; --i)
+			cout << stack_cycle[i] << ' ';
+		cout << endl;
+	} else {
+		cout << -1 << endl;
 	}
 	return 0;
 }
