@@ -13,18 +13,6 @@ int *adj_list[N_MAX];
 int visited[N_MAX];
 int stack_cycle[N_MAX], top, stop_cycle;
 
-int get_unvisited(int n)
-{
-	int res = 0;
-	for (int i = 0; i < n; ++i) {
-		if (visited[i] == UNVISITED) {
-			res = i+1;
-			break;
-		}
-	}
-	return res;
-}
-
 int dfs(int start)
 {
 	int res;
@@ -67,10 +55,12 @@ int main()
 		}
 	}
 
-	int start, res;
-	while ((start = get_unvisited(N)) != 0) {
-		if ((res = dfs(start)) != 0)
-			break;
+	int res;
+	for (int i = 0; i < N; ++i) {
+		if (visited[i] == UNVISITED) {
+			if ((res = dfs(i+1)) != 0)
+				break;
+		}
 	}
 	if (res) {
 		cout << top << endl;
