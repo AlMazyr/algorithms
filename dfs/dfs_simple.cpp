@@ -4,7 +4,7 @@
 
 using namespace std;
 
-/* Simple example of how to use DFS */
+/* Simple example of how to use nonrecursive DFS */
 
 int array[V_MAX][V_MAX];
 int stack[V_MAX];
@@ -48,11 +48,6 @@ int main()
 				stack[top++] = i;
 				visited[i] = 1;
 				found = true;
-				/*
-				if (top == 3) {
-					print_stack(stack, top);
-				}
-				*/
 				break;
 			}
 		}

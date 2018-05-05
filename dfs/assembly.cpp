@@ -7,6 +7,22 @@ using namespace std;
 int *adj_list[N_MAX];
 int v_adj_num[N_MAX];
 int edges[N_MAX][2];
+int visited[N_MAX];
+
+void dfs_recursive(int start)
+{
+	visited[start-1] = 1;
+	if (adj_list[start-1]) {
+		int &adj_num = adj_list[start-1][0];
+		for (int i = 1; i < adj_num+1; ++i) {
+			int &adj_v = adj_list[start-1][i];
+			if (!visited[adj_v-1]) {
+				dfs_recursive(adj_v);
+			}
+		}
+	}
+	cout << start << ' ';
+}
 
 int main()
 {
@@ -37,6 +53,7 @@ int main()
 		}
 	}
 
+#if 0
 	// print adj list
 	for (int i = 0; i < N; ++i) {
 		cout << i+1 << " -> ";
@@ -49,5 +66,12 @@ int main()
 		}
 		cout << endl;
 	}
+#endif
+	for (int i = 0; i < N; ++i) {
+		if (!visited[i]) {
+			dfs_recursive(i+1);
+		}
+	}
+	cout << endl;
 	return 0;
 }
