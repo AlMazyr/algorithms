@@ -8,6 +8,7 @@ int *adj_list[N_MAX];
 int v_adj_num[N_MAX];
 int edges[N_MAX][2];
 int visited[N_MAX];
+int stack_v[N_MAX], stack_adj_idx[N_MAX], top;
 
 void dfs_recursive(int start)
 {
@@ -24,13 +25,42 @@ void dfs_recursive(int start)
 	cout << start << ' ';
 }
 
+void dfs(int start)
+{
+	stack_v[top] = start;
+	stack_adj_idx[top++] = 1;
+	visited[start-1] = 1;
+
+	while (top) {
+		bool found = false;
+		int &current = stack_v[top-1];
+		if (adj_list[current-1]) {
+			int &adj_idx = stack_adj_idx[top-1];
+			int &adj_num = adj_list[current-1][0];
+			for (; adj_idx < adj_num+1; ++adj_idx) {
+				int &adj_v = adj_list[current-1][adj_idx];
+				if (!visited[adj_v-1]) {
+					found = true;
+					stack_v[top] = adj_v;
+					stack_adj_idx[top++] = 1;
+					visited[adj_v-1] = 1;
+					break;
+				}
+			}
+		}
+		if (!found) {
+			top--;
+			cout << current << ' ';
+		}
+	}
+}
+
 int main()
 {
 	int N, edges_num = 0;
 
 	cin >> N;
 
-	// preparing input data
 	while (1) {
 		int v1, v2;
 		cin >> v1 >> v2;
@@ -53,23 +83,9 @@ int main()
 		}
 	}
 
-#if 0
-	// print adj list
-	for (int i = 0; i < N; ++i) {
-		cout << i+1 << " -> ";
-		if (adj_list[i] == NULL) {
-			cout << "NULL";
-		} else {
-			for (int j = 1; j < adj_list[i][0]+1; ++j) {
-				cout << adj_list[i][j] << ' ';
-			}
-		}
-		cout << endl;
-	}
-#endif
 	for (int i = 0; i < N; ++i) {
 		if (!visited[i]) {
-			dfs_recursive(i+1);
+			dfs(i+1);
 		}
 	}
 	cout << endl;
