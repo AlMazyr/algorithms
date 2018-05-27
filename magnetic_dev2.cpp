@@ -9,13 +9,14 @@ struct TestIn {
 	int N;
 	int LC;
 	int K;
-	char str[N_MAX];
+	char str[N_MAX+1];
 };
 
 struct Elem {
 	char bit_arr[13]; // 100 bits == 12.5 bytes
 	char it; // number of bits in the array
 	char rep; // number of repetitive bits from the right end
+	char min_rep;
 };
 
 Elem queue[QUEUE_MAX];
@@ -72,13 +73,20 @@ void print_elem(Elem &el)
 	cout << (int)el.it << ' ' << (int)el.rep << endl << endl;
 }
 
-int calc_min_recs(int n, char *str, int N)
+int calc_min_score(char *str, int N, int LC, int K)
 {
-	int rec_min = N;
+	int min_score;
 	char *ch;
 	Elem e;
+	unsigned long long v_cnt = 0; //DEBUG
+
+	// we can calculate score for n=1
+	min_score = calc_score(LC, 1, K, N);
+	cout << "Min score for n=1 - " << min_score << endl;
+
 	e.it = 1;
 	e.rep = 0;
+	e.min_rep = N;
 	for (int i = 0; i < 13; ++i)
 		e.bit_arr[i] = 0;
 	if (str[0] == '1')
@@ -94,13 +102,16 @@ int calc_min_recs(int n, char *str, int N)
 		int i = cur.it;
 		char prev = extract_bit(cur.bit_arr, i-1) + '0';
 		for (ch = &str[i-1]; *ch; ch++) {
+			v_cnt++; //DEBUG
 			if (*ch != '*') {
 				if (*ch != prev) {
-					if (cur.rep < n) {
+					if (cur.rep < 2) {
 						// invalid elem
 						invalid = true;
 						break;
 					}
+					if (cur.rep < cur.min_rep)
+						cur.min_rep = cur.rep;
 					cur.rep = 1;
 				} else {
 					cur.rep++;
@@ -110,14 +121,22 @@ int calc_min_recs(int n, char *str, int N)
 				i++;
 				prev = *ch;
 			} else { // ch == '*'
-				if (cur.rep >= n || cur.it == 1) {
+				if (cur.rep >= 2 || cur.it == 1) {
 					Elem e1 = cur, e2 = cur;
 					set_bit(e1.bit_arr, i);
 					if (prev == '1') {
 						e1.rep++;
+						if (cur.it != 1 &&
+						    e2.rep < e2.min_rep) {
+							e2.min_rep = e2.rep;
+						}
 						e2.rep = 1;
 					} else {
 						e2.rep++;
+						if (cur.it != 1 &&
+						    e1.rep < e1.min_rep) {
+							e1.min_rep = e1.rep;
+						}
 						e1.rep = 1;
 					}
 					i++;
@@ -139,36 +158,30 @@ int calc_min_recs(int n, char *str, int N)
 				}
 			}
 		}
-		if (invalid)
+		//if (!invalid) {
+			//print_elem(cur); //DEBUG
+		//}
+		if (invalid || cur.rep < 2)
 			continue;
-		// DEBUG
-//		if (n == 2) {
-//			print_elem(cur);
-//		}
-		if (cur.rep >= n) {
-			//DEBUG
-			int rec_n = calc_rec_num(cur.bit_arr, cur.it, n);
-//			if (n == 2) {
-//				cout << "rec num: " << rec_n << endl;
-//			}
-			if (rec_n < rec_min)
-				rec_min = rec_n;
+		print_elem(cur); //DEBUG
+		for (int i = 2; i <= cur.min_rep; ++i) {
+			int rec_n = calc_rec_num(cur.bit_arr, cur.it, i);
+			int score = calc_score(LC, i, K, rec_n);
+			if (score < min_score)
+				min_score = score;
 		}
 	}
 
-	return rec_min;
+	cout << "Vertices count: " << v_cnt << endl;
+	return min_score;
 }
 
 int exec_test(TestIn &tin)
 {
 	int &N = tin.N, &LC = tin.LC, &K = tin.K;
 	char *ch;
-	int recs, score, min_score, n;
 	int str_cnt = 0; //DEBUG
 
-//	cout << N << LC << K << endl << str << endl;
-
-	// change to numbers
 	int i = 0;
 	char prev = tin.str[0];
 	for (ch = tin.str; *ch; ch++) {
@@ -183,24 +196,8 @@ int exec_test(TestIn &tin)
 			*ch = '0' + i;
 		}
 	}
-	//cout << tin.str << ' ' << str_cnt << endl;
 
-	n = 1;
-	min_score = calc_score(LC, n, K, N);
-	//cout << "n = 1, mscore = " << min_score << endl;
-	// calc min recs for all n from 2 to N
-	for (n = 2; n <= N; ++n) {
-		recs = calc_min_recs(n, tin.str, N);
-//		if (recs == N)
-//			continue;
-		score = calc_score(LC, n, K, recs);
-//		cout << "n = " << n << " recs = " << recs << " sc = "
-//			<< score << endl;
-		if (score < min_score)
-			min_score = score;
-	}
-
-	return min_score;
+	return calc_min_score(tin.str, N, LC, K);
 }
 
 int main()
