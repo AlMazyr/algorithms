@@ -5,6 +5,13 @@ using namespace std;
 #define N_MAX 100
 #define QUEUE_MAX 1000000
 
+struct TestIn {
+	int N;
+	int LC;
+	int K;
+	char str[N_MAX];
+};
+
 struct Elem {
 	char bit_arr[13]; // 100 bits == 12.5 bytes
 	char it; // number of bits in the array
@@ -152,21 +159,19 @@ int calc_min_recs(int n, char *str, int N)
 	return rec_min;
 }
 
-int main()
+int exec_test(TestIn &tin)
 {
-	int N, LC, K;
-	char str[N_MAX];
+	int &N = tin.N, &LC = tin.LC, &K = tin.K;
 	char *ch;
 	int recs, score, min_score, n;
 	int str_cnt = 0; //DEBUG
 
-	cin >> N >> LC >> K >> str;
 //	cout << N << LC << K << endl << str << endl;
 
 	// change to numbers
 	int i = 0;
-	char prev = str[0];
-	for (ch = str; *ch; ch++) {
+	char prev = tin.str[0];
+	for (ch = tin.str; *ch; ch++) {
 		str_cnt++;
 		if (*ch == '*') {
 			continue;
@@ -178,14 +183,14 @@ int main()
 			*ch = '0' + i;
 		}
 	}
-	//cout << str << ' ' << str_cnt << endl;
+	//cout << tin.str << ' ' << str_cnt << endl;
 
 	n = 1;
 	min_score = calc_score(LC, n, K, N);
 	//cout << "n = 1, mscore = " << min_score << endl;
 	// calc min recs for all n from 2 to N
 	for (n = 2; n <= N; ++n) {
-		recs = calc_min_recs(n, str, N);
+		recs = calc_min_recs(n, tin.str, N);
 //		if (recs == N)
 //			continue;
 		score = calc_score(LC, n, K, recs);
@@ -195,6 +200,23 @@ int main()
 			min_score = score;
 	}
 
-	cout << min_score << endl;
+	return min_score;
+}
+
+int main()
+{
+	int test_total;
+	TestIn *tests;
+
+	cin >> test_total;
+	tests = new TestIn[test_total];
+
+	// read input data
+	for (int i = 0; i < test_total; ++i)
+		cin >> tests[i].N >> tests[i].LC >> tests[i].K >> tests[i].str;
+
+	// evaluate tests
+	for (int i = 0; i < test_total; ++i)
+		cout << '#' << i+1 << ' ' << exec_test(tests[i]) << endl;
 	return 0;
 }
