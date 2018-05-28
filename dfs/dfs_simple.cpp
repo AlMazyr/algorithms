@@ -4,8 +4,6 @@
 
 using namespace std;
 
-/* Simple example of how to use nonrecursive DFS */
-
 int array[V_MAX][V_MAX];
 int stack[V_MAX];
 int top;

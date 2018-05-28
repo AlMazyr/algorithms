@@ -9,6 +9,7 @@ using namespace std;
 #define OP_MINUS 1
 #define OP_MULT 2
 #define OP_DIV 3
+#define MAX_OP OP_DIV
 
 struct Oper {
 	int l;
@@ -20,7 +21,7 @@ struct Oper {
 
 Oper queue[MAX_QUEUE];
 int head, tail;
-int visited[1000][4][1000];
+int visited[MAX_NUMBER+1][MAX_OP+1][MAX_NUMBER+1];
 
 int calc(Oper &o)
 {
@@ -45,21 +46,16 @@ int calc(Oper &o)
 	return res;
 }
 
-int main()
+int exec_test(int N, int S, int M, int W, int *numbers, int *signs)
 {
-	int numbers[10], signs[4];
-	int N, S, M, W;
 	bool stop = false;
 	int res = -1;
-
-	cin >> N >> S >> M >> W;
-	for (int i = 0; i < N; ++i) {
-		cin >> numbers[i];
-	}
-	for (int i = 0; i < S; ++i) {
-		cin >> signs[i];
-	}
-
+	head = 0;
+	tail = 0;
+	for (int i = 0; i <= MAX_NUMBER; ++i)
+		for (int j = 0; j <= MAX_OP; ++j)
+			for (int k = 0; k <= MAX_NUMBER; ++k)
+				visited[i][j][k] = 0;
 	Oper init = {0, 0, OP_PLUS, 0, 1};
 	visited[0][OP_PLUS][0] = 1;
 	queue[tail++] = init;
@@ -107,6 +103,28 @@ int main()
 			}
 		}
 	}
-	cout << res << endl;
+
+	return res;
+}
+
+int main()
+{
+	int numbers[10], signs[4];
+	int N, S, M, W;
+	int test_num;
+
+	cin >> test_num;
+	for (int i = 0; i < test_num; ++i) {
+		int j;
+		cin >> N >> S >> M;
+		for (j = 0; j < N; ++j)
+			cin >> numbers[j];
+		for (j = 0; j < S; ++j)
+			cin >> signs[j];
+		cin >> W;
+		cout << '#' << i + 1 << ' '
+			<< exec_test(N, S, M, W, numbers, signs) << endl;
+	}
+
 	return 0;
 }
