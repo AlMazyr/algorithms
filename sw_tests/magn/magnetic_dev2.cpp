@@ -3,7 +3,7 @@
 using namespace std;
 
 #define N_MAX 100
-#define QUEUE_MAX 1000000
+#define QUEUE_MAX 10000000
 
 struct TestIn {
 	int N;
@@ -73,17 +73,35 @@ void print_elem(Elem &el)
 	cout << (int)el.it << ' ' << (int)el.rep << endl << endl;
 }
 
-int calc_min_score(char *str, int N, int LC, int K)
+int exec_test(int N, int LC, int K, char *str)
 {
-	int min_score;
 	char *ch;
+	int str_cnt = 0; //DEBUG
+	int min_score;
 	Elem e;
 	unsigned long long v_cnt = 0; //DEBUG
 
+	int i = 0;
+	char prev = str[0];
+	for (ch = str; *ch; ch++) {
+		str_cnt++;
+		if (*ch == '*') {
+			continue;
+		} else {
+			if (*ch != prev) {
+				i ^= 1;
+				prev = *ch;
+			}
+			*ch = '0' + i;
+		}
+	}
+
 	// we can calculate score for n=1
 	min_score = calc_score(LC, 1, K, N);
-	cout << "Min score for n=1 - " << min_score << endl;
+	//cout << "Min score for n=1 - " << min_score << endl;
 
+	head = 0;
+	tail = 0;
 	e.it = 1;
 	e.rep = 0;
 	e.min_rep = N;
@@ -91,11 +109,9 @@ int calc_min_score(char *str, int N, int LC, int K)
 		e.bit_arr[i] = 0;
 	if (str[0] == '1')
 		e.bit_arr[0] |= 1;
-	queue[tail] = e;
-	tail = (tail + 1) % QUEUE_MAX;
+	queue[tail++] = e;
 	while (tail != head) {
-		Elem &cur = queue[head];
-		head = (head + 1) % QUEUE_MAX;
+		Elem &cur = queue[head++];
 		bool invalid = false;
 
 		// iterate over string until end or fork
@@ -142,10 +158,8 @@ int calc_min_score(char *str, int N, int LC, int K)
 					i++;
 					e1.it = i;
 					e2.it = i;
-					queue[tail] = e1;
-					tail = (tail + 1) % QUEUE_MAX;
-					queue[tail] = e2;
-					tail = (tail + 1) % QUEUE_MAX;
+					queue[tail++] = e1;
+					queue[tail++] = e2;
 					invalid = true;
 					break;
 				} else {
@@ -163,7 +177,7 @@ int calc_min_score(char *str, int N, int LC, int K)
 		//}
 		if (invalid || cur.rep < 2)
 			continue;
-		print_elem(cur); //DEBUG
+		//print_elem(cur); //DEBUG
 		for (int i = 2; i <= cur.min_rep; ++i) {
 			int rec_n = calc_rec_num(cur.bit_arr, cur.it, i);
 			int score = calc_score(LC, i, K, rec_n);
@@ -172,48 +186,20 @@ int calc_min_score(char *str, int N, int LC, int K)
 		}
 	}
 
-	cout << "Vertices count: " << v_cnt << endl;
 	return min_score;
-}
-
-int exec_test(TestIn &tin)
-{
-	int &N = tin.N, &LC = tin.LC, &K = tin.K;
-	char *ch;
-	int str_cnt = 0; //DEBUG
-
-	int i = 0;
-	char prev = tin.str[0];
-	for (ch = tin.str; *ch; ch++) {
-		str_cnt++;
-		if (*ch == '*') {
-			continue;
-		} else {
-			if (*ch != prev) {
-				i ^= 1;
-				prev = *ch;
-			}
-			*ch = '0' + i;
-		}
-	}
-
-	return calc_min_score(tin.str, N, LC, K);
 }
 
 int main()
 {
 	int test_total;
-	TestIn *tests;
-
+	int N, LC, K;
+	char str[N_MAX+1];
 	cin >> test_total;
-	tests = new TestIn[test_total];
 
-	// read input data
-	for (int i = 0; i < test_total; ++i)
-		cin >> tests[i].N >> tests[i].LC >> tests[i].K >> tests[i].str;
+	for (int i = 0; i < test_total; ++i) {
+		cin >> N >> LC >> K >> str;
+		cout << '#' << i+1 << ' ' << exec_test(N, LC, K, str) << endl;
+	}
 
-	// evaluate tests
-	for (int i = 0; i < test_total; ++i)
-		cout << '#' << i+1 << ' ' << exec_test(tests[i]) << endl;
 	return 0;
 }
