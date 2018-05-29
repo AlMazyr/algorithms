@@ -37,7 +37,7 @@ int calc(Oper &o)
 			res = o.l * o.r;
 			break;
 		case OP_DIV:
-			if (!o.r || o.l % o.r)
+			if (!o.r)
 				res = -1;
 			else
 				res = o.l / o.r;
@@ -104,7 +104,7 @@ int exec_test(int N, int S, int M, int W, int *numbers, int *signs)
 		}
 	}
 
-	return res;
+	return res > M ? -1 : res;
 }
 
 int main()
