@@ -57,7 +57,6 @@ int exec_test(int N, int S, int M, int W, int *numbers, int *signs)
 			for (int k = 0; k <= MAX_NUMBER; ++k)
 				visited[i][j][k] = 0;
 	Oper init = {0, 0, OP_PLUS, 0, 1};
-	visited[0][OP_PLUS][0] = 1;
 	queue[tail++] = init;
 
 	while (head != tail) {
