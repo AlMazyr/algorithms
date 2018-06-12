@@ -26,17 +26,6 @@ int main()
 			column_mask[j] |= bit << i;
 		}
 	}
-	//DEBUG
-	/*
-	for (int i = 0; i < w; ++i) {
-		for (int j = 0; j < h; ++j) {
-			cout << ((column_mask[i] >> j) & 1);
-		}
-		cout << endl;
-	}
-	cout << endl;
-	*/
-
 	// calculate dist table (2^2h * h)
 	uint_t dist_sz = 1 << h;
 	for (uint_t p1 = 0; p1 < dist_sz; ++p1) {
@@ -65,34 +54,19 @@ int main()
 			}
 		}
 	}
-	//DEBUG: print dist table;
-	/*
-	for (uint_t i = 0; i < dist_sz; ++i) {
-		for (uint_t j = 0; j < dist_sz; ++j) {
-			cout << dist[i][j] << ' ';
-		}
-		cout << endl;
-	}
-	cout << endl;
-	*/
 	for (int i = 1; i < w; ++i) {
-		for (uint_t p2 = 0; p2 < dist_sz; ++p2) {
-			for (uint_t p1 = 0; p1 < dist_sz; ++p1) {
-				uint_t m = (maxi[i-1][p1] + dist[p1][p2]) *
-						valid[p1][p2];
+		for (uint_t j = 0; j < dist_sz; ++j) {
+			uint_t p2 = j & ~column_mask[i];
+			for (uint_t k = 0; k < dist_sz; ++k) {
+				uint_t p1 = k & ~column_mask[i-1];
+				uint_t p1_d = k | column_mask[i-1];
+				uint_t m = (maxi[i-1][p1] + dist[p1_d][p2]) *
+						valid[p1_d][p2];
 				if (m > maxi[i][p2])
 					maxi[i][p2] = m;
 			}
 		}
 	}
-	//DEBUG: print maxi table
-	for (int i = 0; i < w; ++i) {
-		for (uint_t j = 0; j < dist_sz; ++j) {
-			cout << maxi[i][j] << ' ';
-		}
-		cout << endl;
-	}
-	cout << endl;
 	// answer
 	for (uint_t p1 = 0; p1 < dist_sz; ++p1) {
 		uint_t m = (maxi[w-1][p1] + dist[p1][0]) * valid[p1][0];
