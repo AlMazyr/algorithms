@@ -8,12 +8,13 @@
 
 using namespace std;
 
-#define DEBUG
+//#define DEBUG
 
 typedef uint32_t user_id_t;
 typedef int action_t;
 typedef int cabin_id_t;
 typedef map<user_id_t, cabin_id_t> user_cabin_map_t;
+typedef vector<pair<action_t,user_id_t>> request_t;
 
 struct cabin_t
 {
@@ -86,33 +87,9 @@ private:
 	user_cabin_map_t cabin_occupied_map;
 };
 
-
-int main(int argc, char* argv[])
+uint64_t exec_test(uint32_t N, uint32_t M, request_t &requests, toilet_t &toilet)
 {
-	if (argc != 2) {
-		cerr << "Err args! Usage: " << argv[0] << " <FILE>" << endl;
-		return -1;
-	}
-
-	ifstream ifs(argv[1]);
-	uint32_t N, M;
-	user_id_t id;
-	action_t action;
-	vector<pair<action_t,user_id_t>> requests;
 	uint64_t result = 0;
-
-	ifs >> N >> M;
-#ifdef DEBUG
-	cout << "N = " << N << ", M = " << M << endl;
-#endif
-	requests.reserve(M);
-	toilet_t toilet(N);
-
-	for (int i = 0; i < M; ++i) {
-		ifs >> action >> id;
-		requests.push_back(make_pair(action, id));
-	}
-
 #ifdef DEBUG
 	for (auto &req : requests) {
 		cout << req.first << " " << req.second << endl;
@@ -139,8 +116,27 @@ int main(int argc, char* argv[])
 		cout << endl;
 #endif
 	}
-#ifdef DEBUG
-	cout << "Answer = " << result << endl;
-#endif
+	return result;
+}
+
+int main(int argc, char* argv[])
+{
+	int tests_num;
+	cin >> tests_num;
+
+	for (int i = 0; i < tests_num; ++i) {
+		user_id_t id;
+		action_t action;
+		uint32_t N, M;
+		request_t requests;
+		cin >> N >> M;
+		requests.reserve(M);
+		toilet_t toilet(N);
+		for (int i = 0; i < M; ++i) {
+			cin >> action >> id;
+			requests.push_back(make_pair(action, id));
+		}
+		cout << '#' << i+1 << ' ' << exec_test(N, M, requests, toilet) << endl;
+	}
 	return 0;
 }
