@@ -27,14 +27,6 @@ uint16 stack_i[MAX_N];
 uint16 stack_s[MAX_N];
 int top;
 
-void print_stack()
-{
-	cout << "[ ";
-	for (int i = 0; i < top; ++i)
-		cout << stack[i] << ' ';
-	cout << "]" << endl;
-}
-
 VertexNode dfs(uint16 src)
 {
 	uint16 max_sc = 0, max_v = src;
@@ -114,33 +106,6 @@ int exec_test(int N)
 	}
 
 	return ans;
-}
-
-void print_edges(int N)
-{
-	for (int i = 0; i < N-1; ++i)
-		cout << edges[i].v1 << ':' << edges[i].v2 << " ";
-	cout << endl;
-}
-void print_adj_mt(int N)
-{
-	for (int i = 0; i < N; ++i) {
-		for (int j = 0; j < N; ++j)
-			cout << (int)adj_m[i][j] << ' ';
-		cout << endl;
-	}
-}
-
-void print_adj_lst(int N)
-{
-	for (int i = 0; i < N; ++i) {
-		uint16 &j_max = adj_l[i][0].v;
-		for (int j = 1; j < j_max+1; ++j) {
-			VertexNode &vn = adj_l[i][j];
-			cout << vn.v << ':' << vn.w << ' ';
-		}
-		cout << endl;
-	}
 }
 
 int main()
