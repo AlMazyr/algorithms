@@ -7,63 +7,75 @@ using namespace std;
 #define IN	1
 #define OUT	2
 
-int cabins[MAX_N];
+char cabins[MAX_N+1];
 int users[MAX_ID];
-
-void free_cabin(int uid)
-{
-	cabins[users[uid]] = 0;
-	users[uid] = 0;
-}
 
 int occupy_cabin(int uid, int N)
 {
-	int free_id = 0, free_max = 0;
-	for (int i = 0; i < N; ++i) {
-		if (cabins[i])
-			continue;
-		int min_dist = N;
-		for (int j = 0; j < N; ++j) {
-			if (!cabins[j])
-				continue;
-			int dist = j-i;
-			if (dist < 0)
-				dist *= -1;
-			if (dist < min_dist) {
-				min_dist = dist;
+	int hole_len = 0, hole_st = 0, hole_end = 0, hole_sc = 0, score;
+	int prev = cabins[0];
+	int cnt = 0, start = 0;
+	int pos;
+	for (int i = 0; i < N+1; ++i) {
+		if (cabins[i]) {
+			if (!prev) {
+				if (start > 0 && (start + cnt - 1) < N-1)
+					score = (cnt + 1) / 2;
+				else
+					score = cnt;
+				if (score > hole_sc) {
+					hole_len = cnt;
+					hole_st = start;
+					hole_sc = score;
+				}
+				cnt = 0;
 			}
+		} else {
+			if (prev)
+				start = i;
+			cnt++;
 		}
-		if (min_dist > free_max) {
-			free_id = i;
-			free_max = min_dist;
-		}
+		prev = cabins[i];
 	}
-	users[uid] = free_id;
-	cabins[free_id] = uid;
-	return free_id+1;
+	hole_end = hole_st + hole_len - 1;
+	if (hole_st == 0)
+		pos = 0;
+	else if (hole_end == N-1)
+		pos = N-1;
+	else
+		pos = hole_st + ((hole_len - 1) / 2);
+	users[uid] = pos;
+	cabins[pos] = 1;
+
+	return pos+1;
 }
 
 int exec_test(int N, int M)
 {
 	int ans = 0, i;
+	cabins[N] = 1;
 	for (i = 0; i < M; ++i) {
 		int dr, id;
 		cin >> dr >> id;
 
-		if (dr == OUT)
-			free_cabin(id);
-		else
+		if (dr == OUT) {
+			cabins[users[id]] = 0;
+			users[id] = 0;
+		} else {
 			ans += occupy_cabin(id, N);
+		}
 	}
-	for (i = 0; i < N; ++i) {
-		users[cabins[i]] = 0;
+	for (i = 0; i < N; ++i)
 		cabins[i] = 0;
-	}
+	cabins[N] = 0;
 	return ans;
 }
 
 int main()
 {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
 	int tests_num;
 	cin >> tests_num;
 
