@@ -8,9 +8,10 @@ using namespace std;
 #define OUT	2
 
 char cabins[MAX_N+1];
+int N, M;
 int users[MAX_ID];
 
-int occupy_cabin(int uid, int N)
+int occupy_cabin(int uid)
 {
 	int hole_len = 0, hole_st = 0, hole_end = 0, hole_sc = 0, score;
 	int prev = cabins[0];
@@ -50,7 +51,7 @@ int occupy_cabin(int uid, int N)
 	return pos+1;
 }
 
-int exec_test(int N, int M)
+int exec_test()
 {
 	int ans = 0, i;
 	cabins[N] = 1;
@@ -62,7 +63,7 @@ int exec_test(int N, int M)
 			cabins[users[id]] = 0;
 			users[id] = 0;
 		} else {
-			ans += occupy_cabin(id, N);
+			ans += occupy_cabin(id);
 		}
 	}
 	for (i = 0; i < N; ++i)
@@ -80,9 +81,8 @@ int main()
 	cin >> tests_num;
 
 	for (int i = 0; i < tests_num; ++i) {
-		int N, M;
 		cin >> N >> M;
-		cout << '#' << i+1 << ' ' << exec_test(N, M) << endl;
+		cout << '#' << i+1 << ' ' << exec_test() << endl;
 	}
 	return 0;
 }
