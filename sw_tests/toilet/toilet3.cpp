@@ -1,10 +1,9 @@
 #include <iostream>
 
 #define MAX_HEAP	10000
-#define MAX_N		20000
+#define MAX_N		20001
 #define MAX_USERID	1000000
 #define IN		1
-#define OUT		2
 
 using namespace std;
 
@@ -26,13 +25,6 @@ int heap_sz;
 Hole heap_tmp, heap[MAX_HEAP];
 
 #define swap(l,r) do{heap_tmp = l; l = r; r = heap_tmp;} while (0)
-
-void print_heap()
-{
-	for (int i = 0; i < heap_sz; ++i)
-		cout << heap[i].st << ':' << heap[i].len << ' ';
-	cout << endl;
-}
 
 int sift_up(int pos)
 {
@@ -82,12 +74,12 @@ Hole extract(int pos)
 
 unsigned int calc_key(int st, int len)
 {
-	int score1, score2;
-	if (st == 0 || ((st+len-1) == M-1))
+	unsigned int score1, score2;
+	if (st == 0 || ((st+len-1) == N-1))
 		score1 = len;
 	else
 		score1 = (len+1) / 2;
-	score2 = M - st;
+	score2 = N - st;
 	return (score1 << 16) | score2;
 }
 
@@ -110,18 +102,24 @@ int occupy_cabin(int id)
 	else
 		pos = ((h.len - 1) / 2) + h.st;
 
-	Hole h1 = h, h2 = h;
-	h1.len = pos - h1.st;
-	h2.st = pos + 1;
-	h2.len = end - pos;
-	h1.key = calc_key(h1.st, h1.len);
-	h2.key = calc_key(h2.st, h2.len);
-	if (h1.key >> 16)
-		insert(h1);
-	if (h2.key >> 16)
-		insert(h2);
+	Hole hl = h, hr = h;
+	hl.len = pos - hl.st;
+	hr.st = pos + 1;
+	hr.len = end - pos;
+	if (hr.len < 0)
+		hr.len = 0;
+	hl.key = calc_key(hl.st, hl.len);
+	hr.key = calc_key(hr.st, hr.len);
+	if (hl.key >> 16)
+		insert(hl);
+	if (hr.key >> 16)
+		insert(hr);
+	if (hl.st != 0)
+		cabs[hl.st-1].r = hl.key;
+	if (hr.st + hr.len - 1 != N - 1)
+		cabs[hr.st+hr.len].l = hr.key;
 	users[id] = pos;
-	cabs[pos] = {h1.key, h2.key};
+	cabs[pos] = {hl.key, hr.key};
 	return pos+1;
 }
 
@@ -138,6 +136,10 @@ void free_cabin(int id)
 	Hole h = {0, hl.st, hl.len + hr.len + 1};
 	h.key = calc_key(h.st, h.len);
 	insert(h);
+	if (h.st != 0)
+		cabs[h.st-1].r = h.key;
+	if (h.st + h.len - 1 != N - 1)
+		cabs[h.st+h.len].l = h.key;
 	cabs[users[id]] = {0, 0};
 	users[id] = 0;
 }
@@ -155,8 +157,8 @@ int exec_test()
 			ans += occupy_cabin(id);
 		else
 			free_cabin(id);
-		print_heap();
 	}
+	heap_sz = 0;
 	return ans;
 }
 
