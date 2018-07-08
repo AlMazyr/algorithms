@@ -58,6 +58,7 @@ void print_bitarr(uint8 *ba, int it)
 	}
 	cout << endl;
 }
+
 void print_elem(Elem &el)
 {
 	print_bitarr(el.bit_arr, el.it);
@@ -71,6 +72,8 @@ int is_val(Elem &el, int min_sc, int LC, int K)
 	int score = calc_score(LC, el.min_rep, K, el.recs);
 	return score > min_sc ? 0 : 1;
 }
+
+uint8 bitarr_r[5] = {0b11110000, 0b11000000, 0b11};
 
 int exec_test(int N, int LC, int K, char *str)
 {
@@ -177,7 +180,7 @@ int exec_test(int N, int LC, int K, char *str)
 							if (used[e2.min_rep][e2.recs][i][bit])
 								e2_bad = true;
 							else
-								used[e1.min_rep][e1.recs][i][bit] = 1;
+								used[e2.min_rep][e2.recs][i][bit] = 1;
 						}
 						e2.rep = 1;
 					} else {
@@ -202,9 +205,9 @@ int exec_test(int N, int LC, int K, char *str)
 					i++;
 					e1.it = i;
 					e2.it = i;
-					if (is_val(e1, min_score, LC, K) && !e1_bad)
+					if (!e1_bad)
 						queue[tail++] = e1;
-					if (is_val(e2, min_score, LC, K) && !e2_bad)
+					if (!e2_bad)
 						queue[tail++] = e2;
 					//DEBUG
 					/*
@@ -225,10 +228,12 @@ int exec_test(int N, int LC, int K, char *str)
 				}
 			}
 			cur.it = i;
+			/*
 			if (!is_val(cur, min_score, LC, K)) {
 				invalid = true;
 				break;
 			}
+			*/
 		}
 		if (invalid || cur.rep < 2)
 			continue;
@@ -240,17 +245,31 @@ int exec_test(int N, int LC, int K, char *str)
 			if (cur.rep % cur.min_rep)
 				cur.recs += 1;
 		}
+		//cout << "n:" << (int)cur.min_rep << " r:" << (int)cur.recs << endl;
+		//cout << "rep:" << (int)cur.rep << endl;
+		/*
+		if (cur.min_rep == 4) {
+			print_bitarr(cur.bit_arr, cur.it);
+		}*/
+
+		for (int i = 2; i <= cur.min_rep; ++i) {
+			cur.recs = calc_rec_num(cur.bit_arr, cur.it, i);
+			int score = calc_score(LC, i, K, cur.recs);
+			if (score < min_score) {
+				min_score = score;
+			}
+		}
+		/*
 		int score = calc_score(LC, cur.min_rep, K, cur.recs);
 		if (score < min_score) {
 			min_score = score;
 			//DEBUG
-			/*
 			cout << "min_score: " << min_score << endl;
 			cout << "n:" << (int)cur.min_rep << " r:" << (int)cur.recs << endl;
 			cout << "rep:" << (int)cur.rep << endl;
 			print_bitarr(cur.bit_arr, cur.it);
-			*/
 		}
+		*/
 	}
 
 	//DEBUG
@@ -266,6 +285,8 @@ int main()
 	char str[N_MAX+1];
 	cin >> test_total;
 
+	cout << "REF bitarr:" << endl;
+	print_bitarr(bitarr_r, 22);
 	for (int i = 0; i < test_total; ++i) {
 		cin >> N >> LC >> K >> str;
 		cout << '#' << i+1 << ' ' << exec_test(N, LC, K, str) << endl;
