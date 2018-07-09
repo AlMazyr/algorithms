@@ -10,24 +10,6 @@ int asph[MAX_N];
 int count[MAX_K+1];
 int dist[MAX_N][MAX_K];
 
-void print_dist()
-{
-	for (int i = 0; i < N; ++i) {
-		for (int j = 0; j < K; ++j) {
-			cout << dist[i][j] << ' ';
-		}
-		cout << endl;
-	}
-	cout << endl;
-}
-
-void print_asph()
-{
-	for (int i = 0; i < N; ++i)
-		cout << asph[i] << ' ';
-	cout << endl;
-}
-
 int exec_test()
 {
 	int i, j;
@@ -73,7 +55,7 @@ int exec_test()
 		}
 	}
 	//getting the answer
-	int ans = MAX_K;
+	int ans = MAX_K + 1;
 	for (j = 0; j < K; ++j) {
 		if (dist[N-1][j] != 0 && dist[N-1][j] < ans)
 			ans = dist[N-1][j];

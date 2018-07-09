@@ -2,7 +2,7 @@
 
 using namespace std;
 
-#define MAX_N	20
+#define MAX_N	20000
 #define MAX_ID	1000000
 #define IN	1
 #define OUT	2
