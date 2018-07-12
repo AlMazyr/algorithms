@@ -12,6 +12,9 @@ uint_t	column_mask[MAX_W];
 uint_t	dist[MAX_PROF_SZ][MAX_PROF_SZ];
 uint_t valid[MAX_PROF_SZ][MAX_PROF_SZ];
 uint_t	maxi[MAX_W][MAX_PROF_SZ];
+uint_t profiles[MAX_PROF_SZ];
+uint_t prof_bits[MAX_PROF_SZ];
+int p_cnt;
 
 uint_t exec_test(int h, int w)
 {
@@ -19,11 +22,18 @@ uint_t exec_test(int h, int w)
 	uint_t dist_sz = 1 << h;
 
 	for (int i = 1; i < w; ++i) {
-		for (uint_t j = 0; j < dist_sz; ++j) {
-			uint_t p2 = j & ~column_mask[i];
-			for (uint_t k = 0; k < dist_sz; ++k) {
-				uint_t p1 = k & ~column_mask[i-1];
-				uint_t p1_d = k | column_mask[i-1];
+		//iterate over correct profiles
+		for (int j = 0; j < p_cnt; ++j) {
+			if (profiles[j] >= dist_sz)
+				continue; //skip bigger profile
+			uint_t p2 = profiles[j];
+			p2 &= ~column_mask[i];
+			for (int k = 0; k < p_cnt; ++k) {
+				if (profiles[k] >= dist_sz)
+					continue; // skip bigger profile
+				uint_t p1 = profiles[k];
+				uint_t p1_d = p1 | column_mask[i-1];
+				p1 &= ~column_mask[i-1];
 				uint_t m = (maxi[i-1][p1] + dist[p1_d][p2]) *
 						valid[p1_d][p2];
 				if (m > maxi[i][p2])
@@ -51,27 +61,33 @@ int main()
 	int h, w;
 	int tests_num;
 
-	// calculate dist table (2^2h * h)
-	for (uint_t p1 = 0; p1 < MAX_PROF_SZ; ++p1) {
-		for (uint_t p2 = 0; p2 < MAX_PROF_SZ; ++p2) {
-			int p2_bits = 0;
-			int prev = 0;
-			bool invalid_p2 = false;
-			// calculate number of bits in p2
-			for (int j = 0; j <= MAX_H; ++j) {
-				int bit = (p2 >> j) & 1;
-				if (bit) {
-					p2_bits++;
-				} else if (prev) {
-					if (p2_bits % 2) {
-						invalid_p2 = true;
-						break;
-					}
-				}
-				prev = bit;
+	// generate valid profiles
+	for (uint_t p = 0; p < MAX_PROF_SZ; ++p) {
+		int prev = 0;
+		int bit_num = 0;
+		bool invalid = false;
+		for (int j = 0; j <= MAX_H; ++j) {
+			int bit = (p >> j) & 1;
+			if (bit) {
+				bit_num++;
+			} else if (prev && (bit_num % 2)) {
+				invalid = true;
+				break;
 			}
-			if (invalid_p2)
-				continue;
+			prev = bit;
+		}
+		if (invalid)
+			continue;
+		profiles[p_cnt] = p;
+		prof_bits[p_cnt++] = bit_num;
+	}
+
+	// calculate dist table
+	for (uint_t p1 = 0; p1 < MAX_PROF_SZ; ++p1) {
+		//iterate over valid profiles
+		for (int i = 0; i < p_cnt; ++i) {
+			uint_t &p2 = profiles[i];
+			uint_t &p2_bits = prof_bits[i];
 			if ((~p1 & p2) == p2) {
 				dist[p1][p2] = p2_bits / 2;
 				valid[p1][p2] = 1;
@@ -80,7 +96,6 @@ int main()
 	}
 
 	cin >> tests_num;
-
 	int i = 0, j;
 	for (; i < tests_num; ++i) {
 		cin >> h >> w;
