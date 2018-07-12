@@ -7,8 +7,9 @@ using namespace std;
 
 int in[MAX_N];
 int maxv[MAX_N+1][MAX_SUM+1];
+int n;
 
-int exec_test(int n)
+int exec_test()
 {
 	int sum = 0;
 	int i, j;
@@ -54,15 +55,16 @@ int exec_test(int n)
 
 int main()
 {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
 	int tests_num;
 	cin >> tests_num;
 
 	for (int i = 0; i < tests_num; ++i) {
-		int n;
 		cin >> n;
 		for (int j = 0; j < n; ++j)
 			cin >> in[j];
-		cout << '#' << i+1 << ' ' << exec_test(n) << endl;
+		cout << '#' << i+1 << ' ' << exec_test() << endl;
 	}
 	return 0;
 }
