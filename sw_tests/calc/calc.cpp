@@ -21,7 +21,9 @@ struct Oper {
 
 Oper queue[MAX_QUEUE];
 int head, tail;
-int visited[MAX_NUMBER+1][MAX_OP+1][MAX_NUMBER+1];
+char visited[MAX_NUMBER+1][MAX_OP+1][MAX_NUMBER+1];
+int numbers[10], signs[4];
+int N, S, M, W;
 
 int calc(Oper &o)
 {
@@ -46,16 +48,19 @@ int calc(Oper &o)
 	return res;
 }
 
-int exec_test(int N, int S, int M, int W, int *numbers, int *signs)
+int exec_test()
 {
 	bool stop = false;
 	int res = -1;
 	head = 0;
 	tail = 0;
-	for (int i = 0; i <= MAX_NUMBER; ++i)
-		for (int j = 0; j <= MAX_OP; ++j)
-			for (int k = 0; k <= MAX_NUMBER; ++k)
-				visited[i][j][k] = 0;
+	long long *ptr = (long long*)visited;
+	char *ptr_end = (char*)visited + MAX_QUEUE; //MAX_QUEUE is max cache sz
+	while (ptr != (long long*)ptr_end) {
+		*ptr = 0;
+		ptr++;
+	}
+
 	Oper init = {0, 0, OP_PLUS, 0, 1};
 	queue[tail++] = init;
 
@@ -108,8 +113,8 @@ int exec_test(int N, int S, int M, int W, int *numbers, int *signs)
 
 int main()
 {
-	int numbers[10], signs[4];
-	int N, S, M, W;
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
 	int test_num;
 
 	cin >> test_num;
@@ -122,7 +127,7 @@ int main()
 			cin >> signs[j];
 		cin >> W;
 		cout << '#' << i + 1 << ' '
-			<< exec_test(N, S, M, W, numbers, signs) << endl;
+			<< exec_test() << endl;
 	}
 
 	return 0;
