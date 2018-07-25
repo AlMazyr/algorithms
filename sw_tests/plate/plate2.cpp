@@ -7,11 +7,21 @@ using namespace std;
 
 int in[MAX_N];
 int maxv[MAX_N+1][MAX_SUM+1];
-int n;
+int n, sum;
+
+void print_maxv()
+{
+	for (int i = 0; i < n+1; ++i) {
+		for (int j = 0; j < sum+1; ++j)
+			cout << maxv[i][j] << ' ';
+		cout << endl;
+	}
+	cout << endl;
+}
 
 int exec_test()
 {
-	int sum = 0;
+	sum = 0;
 	int i, j;
 
 	for (i = 0; i < n; ++i)
