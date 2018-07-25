@@ -10,6 +10,16 @@ int asph[MAX_N];
 int count[MAX_K+1];
 int dist[MAX_N][MAX_K];
 
+void print_dist()
+{
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < K; ++j)
+			cout << dist[i][j] << ' ';
+		cout << endl;
+	}
+	cout << endl;
+}
+
 int exec_test()
 {
 	int i, j;
@@ -43,7 +53,11 @@ int exec_test()
 				continue;
 			}
 			jl = 0;
-			dl = dist[i][j] + asph[i+1] - e;
+			int e2 = asph[i+1] - K + 1;
+			if (e2 <= e)
+				dl = dist[i][j] + asph[i+1] - e;
+			else
+				dl = dist[i][j] + K;
 			jr = K-1;
 			dr = dist[i][j] + K;
 			int &dl_old = dist[i+1][jl], &dr_old = dist[i+1][jr];
