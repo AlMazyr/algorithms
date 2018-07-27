@@ -93,7 +93,9 @@ Hole search_hole(unsigned int key)
 
 int occupy_cabin(int id)
 {
+	// get biggest hole
 	Hole h = extract(0);
+	// calculate cabin position in the hole
 	int pos, end = h.st + h.len - 1;
 	if (h.st == 0)
 		pos = h.st;
@@ -101,7 +103,7 @@ int occupy_cabin(int id)
 		pos = end;
 	else
 		pos = ((h.len - 1) / 2) + h.st;
-
+	// calculate new holes
 	Hole hl = h, hr = h;
 	hl.len = pos - hl.st;
 	hr.st = pos + 1;
@@ -114,6 +116,7 @@ int occupy_cabin(int id)
 		insert(hl);
 	if (hr.key >> 16)
 		insert(hr);
+	// update keys for the new holes
 	if (hl.st != 0)
 		cabs[hl.st-1].r = hl.key;
 	if (hr.st + hr.len - 1 != N - 1)
@@ -125,17 +128,19 @@ int occupy_cabin(int id)
 
 void free_cabin(int id)
 {
+	// find cabin
 	Keys k = cabs[users[id]];
+	// extract left and right holes
 	Hole hl = {0, users[id], 0}, hr = {0, users[id], 0};
-
 	if (k.l >> 16)
 		hl = search_hole(k.l);
 	if (k.r >> 16)
 		hr = search_hole(k.r);
-
+	// merge left and right to new hole
 	Hole h = {0, hl.st, hl.len + hr.len + 1};
 	h.key = calc_key(h.st, h.len);
 	insert(h);
+	// update keys for new hole
 	if (h.st != 0)
 		cabs[h.st-1].r = h.key;
 	if (h.st + h.len - 1 != N - 1)
