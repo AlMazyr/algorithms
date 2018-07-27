@@ -11,6 +11,16 @@ char str[MAX_N];
 int d[MAX_N][MAX_N];
 int sm[MAX_N][MAX_N+1];
 
+void print_d()
+{
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < N; ++j)
+			cout << d[i][j] << ' ';
+		cout << endl;
+	}
+	cout << endl;
+}
+
 int same(int st, int len)
 {
 	if (sm[st][len])
@@ -59,6 +69,7 @@ int exec_test()
 				}
 			}
 		}
+		print_d();
 		if (!d[0][N-1])
 			break;
 		int score = calc_score(LC, L, K, d[0][N-1]);

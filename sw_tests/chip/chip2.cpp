@@ -22,10 +22,10 @@ uint_t exec_test(int h, int w)
 	uint_t dist_sz = 1 << h;
 
 	for (int i = 1; i < w; ++i) {
-		//iterate over correct profiles
+		// iterate over correct profiles
 		for (int j = 0; j < p_cnt; ++j) {
 			if (profiles[j] >= dist_sz)
-				continue; //skip bigger profile
+				continue; // skip bigger profile
 			uint_t p2 = profiles[j];
 			p2 &= ~column_mask[i];
 			for (int k = 0; k < p_cnt; ++k) {
@@ -40,7 +40,7 @@ uint_t exec_test(int h, int w)
 					maxi[i][p2] = m;
 			}
 		}
-		//cleaning
+		// cleaning
 		for (uint_t j = 0; j < dist_sz; ++j)
 			maxi[i-1][j] = 0;
 	}
@@ -50,7 +50,7 @@ uint_t exec_test(int h, int w)
 		if (m > ans)
 			ans = m;
 	}
-	//cleaning
+	// cleaning
 	for (uint_t j = 0; j < dist_sz; ++j)
 		maxi[w-1][j] = 0;
 	return ans;
@@ -84,7 +84,7 @@ int main()
 
 	// calculate dist table
 	for (uint_t p1 = 0; p1 < MAX_PROF_SZ; ++p1) {
-		//iterate over valid profiles
+		// iterate over valid profiles
 		for (int i = 0; i < p_cnt; ++i) {
 			uint_t &p2 = profiles[i];
 			uint_t &p2_bits = prof_bits[i];
